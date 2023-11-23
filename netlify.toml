@@ -1,0 +1,3 @@
+[build]
+functions = "/dist/netlify/functions"
+external_node_modules = ["node-fetch@2.6.6"]
