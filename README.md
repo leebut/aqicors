@@ -5,12 +5,13 @@ This app uses the _Air Matters_ API ([https://dev.air-matters.com](https://dev.a
 
 ### Project URL
 
-[https://aqiapp.netlify.app/](https://aqiapp.netlify.app/)
+[https://aqicors.netlify.app/](https://aqicors.netlify.app/)
 
 ### Dependencies
 
 - Vite
 - tailwindscss - postcss - autoprefixer
+- node-fetch
 
 ## Usage
 
@@ -20,9 +21,10 @@ Click on the box and click on the location you want to see the data for.
 
 > I am using the free tier for the app since this is a learning project, so it is limited to 1,000 requests per day.
 
-## CORS
+## CORS HELL!
 
-I was disturbed by CORS errors, but after searching, I discovered [https://corsproxy.io](https://corsproxy.io). When I learn more, I'll look into implementing my own CORS handler.
+I was disturbed by CORS errors, but after searching, I discovered [https://corsproxy.io](https://corsproxy.io), which was simple to use.
+Not satisfied with being reliant on a third party, I found [a tutorial on YouTube](https://www.youtube.com/watch?v=3j5cQy1V2W0), but then had to work out how to deploy on Netlify.
 
 ## NOTES
 
