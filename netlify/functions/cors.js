@@ -15,14 +15,13 @@ exports.handler = async (event, context) => {
   console.log(url.href);
   var cookie_string = event.headers.cookie || "";
   var useragent = event.headers["user-agent"] || "";
-  
+
   // I had problems using the env variable for the Authorization header.
   // Reverted to pasting the full API key below
-  const aqiToken = process.env.VITE_AQI_TOKEN;
+  // const aqiToken = process.env.YOUR_TOKEN;
 
   var header_to_send = {
-    Authorization:
-      "yourkeyhere",
+    Authorization: "YOUR_KEY",
     Cookie: cookie_string,
     "User-Agent": useragent,
     "content-type": "application/json",
