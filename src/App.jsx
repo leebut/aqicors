@@ -6,6 +6,8 @@ import { data } from "autoprefixer";
 
 // API key is stored in .env
 const aqiKey = import.meta.env.VITE_AQI_TOKEN;
+const baseUrl =
+  "https://aqicors.netlify.app/.netlify/functions/cors/https://api.air-matters.app/";
 
 export default function App() {
   // Define states
@@ -46,7 +48,12 @@ export default function App() {
 
   // This function is called by the effect that takes the state: placeId
   async function getAqiData(placeId) {
-    const url = `https://aqicors.netlify.app/.netlify/functions/cors/https://api.air-matters.app/current_air_condition?place_id=${placeId}&${types}`;
+    // const url =
+    //   "https://corsproxy.io/?" +
+    //   encodeURIComponent(
+    //     `https://api.air-matters.app/current_air_condition?place_id=${placeId}&${types}`
+    //   );
+    const url = `${baseUrl}current_air_condition?place_id=${placeId}&${types}`;
 
     try {
       setIsLoading(true);
@@ -77,7 +84,7 @@ export default function App() {
   // component.
   function setNewPlaceId(newId) {
     setPlaceId(newId);
-    console.log(`Updated with: ${placeId}.`);
+    console.log(`Updated with: ${newId}.`);
   }
 
   // Query the API with the last debounced value of the effect dependent on
@@ -90,13 +97,19 @@ export default function App() {
       setError("");
       try {
         setFindingPlaces(true);
-        const url = `https://aqicors.netlify.app/.netlify/functions/cors/https://api.air-matters.app/place_search?lang=en&content=${query}`;
+        // const url =
+        //   "https://corsproxy.io/?" +
+        //   encodeURIComponent(
+        //     `https://api.air-matters.app/place_search?lang=en&content=${query}`
+        //   );
+        const url = `${baseUrl}place_search?lang=en&content=${query}`;
 
         const res = await fetch(url, {
           headers: {
             Authorization: `${aqiKey}`,
           },
         });
+
         if (!res.ok) throw new Error("Something went wrong fetching places.");
 
         const data = await res.json();
@@ -205,7 +218,10 @@ function PlacesList({ places, onSetNewPlaceId }) {
       <h2 className="mt-6 text-white text-4xl font-bold text-center">
         {places.length} Places Found
       </h2>
-      <select className="m-4 w-screen sm:w-[50rem] text-2xl even:bg-slate-300 p-4 border-4 rounded-full border-l-teal-700">
+      <select
+        className="m-4 w-screen sm:w-[50rem] text-2xl even:bg-slate-300 p-4 border-4 rounded-full border-l-teal-700"
+        onChange={(e) => onSetNewPlaceId(e.target.value)}
+      >
         <option className="text-2xl text-center">
           ↓↓↓ {places.length} PLACES FOUND - See below ↓↓↓
         </option>
@@ -226,7 +242,7 @@ function PlaceItems({ places, onSetNewPlaceId }) {
     <option
       className="text-2xl even:bg-slate-300"
       value={places.place_id}
-      onClick={() => onSetNewPlaceId(places.place_id)}
+      // onChange={() => onSetNewPlaceId(places.place_id)}
     >
       {places.name} - {places.description}
     </option>
