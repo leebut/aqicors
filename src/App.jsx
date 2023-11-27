@@ -48,11 +48,14 @@ export default function App() {
 
   // This function is called by the effect that takes the state: placeId
   async function getAqiData(placeId) {
+    // ******* Use this const url for testing. *******
     // const url =
     //   "https://corsproxy.io/?" +
     //   encodeURIComponent(
     //     `https://api.air-matters.app/current_air_condition?place_id=${placeId}&${types}`
     //   );
+
+    // ******* Use this const url for the build and deployment to Netlify. *******
     const url = `${baseUrl}current_air_condition?place_id=${placeId}&${types}`;
 
     try {
@@ -73,7 +76,7 @@ export default function App() {
       setAqiData(data.latest.readings);
       console.log(data.latest.readings);
     } catch (err) {
-      alert(err.message);
+      // alert(err.message);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -85,6 +88,21 @@ export default function App() {
   function setNewPlaceId(newId) {
     setPlaceId(newId);
     console.log(`Updated with: ${newId}.`);
+  }
+
+  function handleSetQuery(val) {
+    if (!val) {
+      setAqiData([]);
+      setPlaceId("");
+      setPlaces([]);
+    }
+    setQuery(val);
+  }
+
+  function handleReset() {
+    setAqiData([]);
+    setPlaceId("");
+    setPlaces([]);
   }
 
   // Query the API with the last debounced value of the effect dependent on
@@ -119,7 +137,7 @@ export default function App() {
         setPlaces(data.places);
         console.log(data.places);
       } catch (err) {
-        alert(err.message);
+        // alert(err.message);
         setError(err.message);
       } finally {
         setFindingPlaces(false);
@@ -130,8 +148,9 @@ export default function App() {
 
   return (
     <div className="flex flex-col items-center">
-      <SearchBar query={query} setQuery={setQuery} />
-      <Header places={places} placeId={placeId} />
+      {/* <SearchBar query={query} setQuery={setQuery} /> */}
+      <SearchBar query={query} onHandleSetQuery={handleSetQuery} />
+      <Header places={places} placeId={placeId} query={query} />
 
       {/* <Button onGetPlaces={getPlaces} /> */}
       <Box>
@@ -144,7 +163,9 @@ export default function App() {
 
       <Box>
         {isLoading && <Loading />}
-        {!isLoading && !error && <AqiList aqiData={aqiData} query={query} />}
+        {!isLoading && !error && (
+          <AqiList aqiData={aqiData} query={query} placeId={placeId} />
+        )}
         {error && <ErrorMessage message={error} />}
       </Box>
       <Footer />
@@ -152,7 +173,7 @@ export default function App() {
   );
 }
 
-function SearchBar({ query, setQuery }) {
+function SearchBar({ query, onHandleSetQuery }) {
   return (
     <>
       <h1 className="text-6xl text-orange-400 font-bold mt-4 mb-6">
@@ -163,13 +184,16 @@ function SearchBar({ query, setQuery }) {
         type="text"
         placeholder="Enter place name"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => onHandleSetQuery(e.target.value)}
       />
     </>
   );
 }
 
-function Header({ placeId, places }) {
+function Header({ placeId, places, query }) {
+  if (!query) {
+    return;
+  }
   return (
     <>
       {places.length > 0 && (
@@ -213,6 +237,9 @@ function FindingPlacesMsg() {
 }
 
 function PlacesList({ places, onSetNewPlaceId }) {
+  if (places.length === 0) {
+    return;
+  }
   return (
     <>
       <h2 className="mt-6 text-white text-4xl font-bold text-center">
@@ -271,8 +298,8 @@ function ErrorMessage({ message }) {
     </>
   );
 }
-function AqiList({ aqiData, query }) {
-  if (!query) {
+function AqiList({ aqiData, query, placeId }) {
+  if (!placeId) {
     return;
   }
 
@@ -280,7 +307,7 @@ function AqiList({ aqiData, query }) {
     return (
       <>
         <h1 className="text-slate-200 text-4xl font-bold">
-          <span>🙅‍♂️</span>No data for this location. <span>🙅‍♀️</span>
+          <span>🙅‍♂️</span> No data for this location. <span>🙅‍♀️</span>
         </h1>
       </>
     );

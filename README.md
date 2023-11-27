@@ -30,8 +30,3 @@ Not satisfied with being reliant on a third party, I found [a tutorial on YouTub
 
 For now, I'm concered with data fetching and dealing with it rather than focus on the UI. Later, I'll improve the UI and make it responsive.
 Since I am learning, there may be parts of the code that I have not implemented correctly.
-
-## TODO
-
-Reset all states when the search box has no input.
-Discover how to filter the results to not include place IDs that have no AQI data.
