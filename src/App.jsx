@@ -14,6 +14,7 @@ export default function App() {
   const types = "lang=en&standard=aqi_us";
 
   const [query, setQuery] = useState("");
+  const [startsWithQuery, setStartsWithQuery] = useState(false);
   const [aqiData, setAqiData] = useState([]);
   const [places, setPlaces] = useState([]);
   const [placeId, setPlaceId] = useState("");
@@ -30,7 +31,7 @@ export default function App() {
         getAqiData(placeId);
       }
     },
-    [placeId]
+    [placeId],
   );
 
   // This effect is debounced to prevent race conditions in the query on each
@@ -43,20 +44,20 @@ export default function App() {
       }, 1000);
       return () => clearTimeout(timerId);
     },
-    [query]
+    [query],
   );
 
   // This function is called by the effect that takes the state: placeId
   async function getAqiData(placeId) {
     // ******* Use this const url for testing. *******
-    // const url =
-    //   "https://corsproxy.io/?" +
-    //   encodeURIComponent(
-    //     `https://api.air-matters.app/current_air_condition?place_id=${placeId}&${types}`
-    //   );
+    const url =
+      "https://corsproxy.io/?" +
+      encodeURIComponent(
+        `https://api.air-matters.app/current_air_condition?place_id=${placeId}&${types}`,
+      );
 
     // ******* Use this const url for the build and deployment to Netlify. *******
-    const url = `${baseUrl}current_air_condition?place_id=${placeId}&${types}`;
+    // const url = `${baseUrl}current_air_condition?place_id=${placeId}&${types}`;
 
     try {
       setIsLoading(true);
@@ -99,6 +100,10 @@ export default function App() {
     setQuery(val);
   }
 
+  function handleStartsWithQuery() {
+    setStartsWithQuery(!startsWithQuery);
+  }
+
   function handleReset() {
     setAqiData([]);
     setPlaceId("");
@@ -115,12 +120,13 @@ export default function App() {
       setError("");
       try {
         setFindingPlaces(true);
-        // const url =
-        //   "https://corsproxy.io/?" +
-        //   encodeURIComponent(
-        //     `https://api.air-matters.app/place_search?lang=en&content=${query}`
-        //   );
-        const url = `${baseUrl}place_search?lang=en&content=${query}`;
+
+        const url =
+          "https://corsproxy.io/?" +
+          encodeURIComponent(
+            `https://api.air-matters.app/place_search?lang=en&content=${query}`,
+          );
+        // const url = `${baseUrl}place_search?lang=en&content=${query}`;
 
         const res = await fetch(url, {
           headers: {
@@ -150,13 +156,23 @@ export default function App() {
     <div className="flex flex-col items-center">
       {/* <SearchBar query={query} setQuery={setQuery} /> */}
       <SearchBar query={query} onHandleSetQuery={handleSetQuery} />
+      <StartsWithQueryBtn
+        onHandleStartsWithQuery={handleStartsWithQuery}
+        startsWithQuery={startsWithQuery}
+        query={query}
+      />
       <Header places={places} placeId={placeId} query={query} />
 
       {/* <Button onGetPlaces={getPlaces} /> */}
       <Box>
         {findingPlaces && <FindingPlacesMsg />}
         {!findingPlaces && !error && (
-          <PlacesList places={places} onSetNewPlaceId={setNewPlaceId} />
+          <PlacesList
+            places={places}
+            onSetNewPlaceId={setNewPlaceId}
+            query={query}
+            startsWithQuery={startsWithQuery}
+          />
         )}
         {error && <ErrorMessage message={error} />}
       </Box>
@@ -173,19 +189,45 @@ export default function App() {
   );
 }
 
+function StartsWithQueryBtn({
+  onHandleStartsWithQuery,
+  startsWithQuery,
+  query,
+}) {
+  return !startsWithQuery ? (
+    <button
+      className="text-white text-2xl bg-sky-800 border-2 border-sky-200 mb-8 mt-2 p-4 font-bold transition-all duration-200"
+      onClick={() => onHandleStartsWithQuery()}
+    >
+      click to only show places starting with{" "}
+      <span className="text-yellow-300">{query.toUpperCase()}</span>
+    </button>
+  ) : (
+    <button
+      className="text-white text-2xl bg-green-800 border-2 border-lime-200 mb-8 mt-2 p-4 font-bold transition-all duration-200"
+      onClick={() => onHandleStartsWithQuery()}
+    >
+      Click to show all places containing{" "}
+      <span className="text-yellow-300">{query.toUpperCase()}</span>
+    </button>
+  );
+}
+
 function SearchBar({ query, onHandleSetQuery }) {
   return (
     <>
-      <h1 className="text-6xl text-orange-400 font-bold mt-4 mb-6">
+      <h2 className="text-6xl text-orange-400 font-bold mt-4 mb-6">
         Air Quality
-      </h1>
+      </h2>
       <input
-        className="h-25 border-4 border-orange-800 text-3xl p-5 my-3 outline-none text-black bg-orange-300 rounded-full placeholder-gray-800"
+        className="h-25 border-4 border-orange-800 text-3xl p-5 my-3 outline-none text-black bg-orange-300 rounded-full placeholder-gray-700 focus:placeholder-white focus:bg-sky-600 focus:border-cyan-200 focus:text-white transition-all duration-300"
         type="text"
-        placeholder="Enter place name"
+        autoFocus
+        placeholder="Enter query..."
         value={query}
         onChange={(e) => onHandleSetQuery(e.target.value)}
       />
+      <h2 className="text-2xl font-bold text-white mt-10">filter results</h2>
     </>
   );
 }
@@ -236,27 +278,31 @@ function FindingPlacesMsg() {
   );
 }
 
-function PlacesList({ places, onSetNewPlaceId }) {
+function PlacesList({ places, onSetNewPlaceId, query, startsWithQuery }) {
   if (places.length === 0) {
     return;
   }
+
   return (
     <>
-      <h2 className="mt-6 text-white text-4xl font-bold text-center">
+      {/* <h2 className="mt-6 text-white text-4xl font-bold text-center">
         {places.length} Places Found
-      </h2>
+      </h2> */}
       <select
         className="m-4 w-screen sm:w-[50rem] text-2xl even:bg-slate-300 p-4 border-4 rounded-full border-l-teal-700"
         onChange={(e) => onSetNewPlaceId(e.target.value)}
       >
         <option className="text-2xl text-center">
-          ↓↓↓ {places.length} PLACES FOUND - See below ↓↓↓
+          ↓↓↓ Places found - See below ↓↓↓
         </option>
+
         {places?.map((placeList) => (
           <PlaceItems
             onSetNewPlaceId={onSetNewPlaceId}
             places={placeList}
             key={placeList.place_id}
+            query={query}
+            startsWithQuery={startsWithQuery}
           />
         ))}
       </select>
@@ -264,15 +310,23 @@ function PlacesList({ places, onSetNewPlaceId }) {
   );
 }
 
-function PlaceItems({ places, onSetNewPlaceId }) {
+function PlaceItems({ places, query, startsWithQuery }) {
+  const queryToUpper = query[0].toUpperCase() + query.substring(1);
+
+  if (startsWithQuery) {
+    return places.name.startsWith(queryToUpper) ? (
+      <option className="text-2xl even:bg-slate-300" value={places.place_id}>
+        {places.name} - {places.description}
+      </option>
+    ) : null;
+  }
+
   return (
-    <option
-      className="text-2xl even:bg-slate-300"
-      value={places.place_id}
-      // onChange={() => onSetNewPlaceId(places.place_id)}
-    >
-      {places.name} - {places.description}
-    </option>
+    !startsWithQuery && (
+      <option className="text-2xl even:bg-slate-300" value={places.place_id}>
+        {places.name} - {places.description}
+      </option>
+    )
   );
 }
 
