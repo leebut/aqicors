@@ -141,7 +141,7 @@ export default function App() {
           throw new Error("Cannot find any places with that name");
 
         setPlaces(data.places);
-        console.log(data.places);
+        // console.log(data.places);
       } catch (err) {
         // alert(err.message);
         setError(err.message);
@@ -283,16 +283,35 @@ function PlacesList({ places, onSetNewPlaceId, query, startsWithQuery }) {
     return;
   }
 
+  // This is a rudementy filter to be executed when the filter button is
+  // clicked to only show places that start with the search query.
+  let filteredRes = [];
+
+  if (startsWithQuery) {
+    // filteredRes = [];
+    const queryToUpper = query[0].toUpperCase() + query.substring(1);
+
+    for (let place of places) {
+      if (place.name.startsWith(queryToUpper)) {
+        filteredRes.push(place);
+      }
+    }
+    // console.log(
+    //   `FOUND ${filteredRes.length} PLACES BEGINNING WITH ${queryToUpper}`,
+    // );
+  }
+
   return (
     <>
-      {/* <h2 className="mt-6 text-white text-4xl font-bold text-center">
-        {places.length} Places Found
-      </h2> */}
+      <h2 className="mt-6 text-white text-4xl font-bold text-center">
+        {filteredRes.length} places filtered.
+      </h2>
+
       <select
         className="m-4 w-screen sm:w-[50rem] text-2xl even:bg-slate-300 p-4 border-4 rounded-full border-l-teal-700"
         onChange={(e) => onSetNewPlaceId(e.target.value)}
       >
-        <option className="text-2xl text-center">
+        <option className="text-2xl text-center" value="">
           ↓↓↓ Places found - See below ↓↓↓
         </option>
 
