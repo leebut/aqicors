@@ -303,10 +303,11 @@ function PlacesList({ places, onSetNewPlaceId, query, startsWithQuery }) {
 
   return (
     <>
-      <h2 className="mt-6 text-white text-4xl font-bold text-center">
-        {filteredRes.length} places filtered.
-      </h2>
-
+      {filteredRes.length > 0 && (
+        <h2 className="mt-6 text-white text-4xl font-bold text-center">
+          {filteredRes.length} places filtered.
+        </h2>
+      )}
       <select
         className="m-4 w-screen sm:w-[50rem] text-2xl even:bg-slate-300 p-4 border-4 rounded-full border-l-teal-700"
         onChange={(e) => onSetNewPlaceId(e.target.value)}
