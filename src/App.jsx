@@ -199,7 +199,7 @@ function StartsWithQueryBtn({
       className="text-white text-2xl bg-sky-800 border-2 border-sky-200 mb-8 mt-2 p-4 font-bold transition-all duration-200"
       onClick={() => onHandleStartsWithQuery()}
     >
-      click to only show places starting with{" "}
+      Click to only show places starting with{" "}
       <span className="text-yellow-300">{query.toUpperCase()}</span>
     </button>
   ) : (
@@ -283,7 +283,7 @@ function PlacesList({ places, onSetNewPlaceId, query, startsWithQuery }) {
     return;
   }
 
-  // This is a rudementy filter to be executed when the filter button is
+  // This is a rudimentary filter to be executed when the filter button is
   // clicked to only show places that start with the search query.
   let filteredRes = [];
 
